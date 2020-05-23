@@ -27,7 +27,7 @@ public class StockResource {
     public StockResource() {
         
     }
-    
+
     @GET
     @Produces(MediaType.APPLICATION_XML)
     public String getAllStock() {
@@ -39,7 +39,6 @@ public class StockResource {
 
         for(Stock stock : allStock) {
             buffer.append(stock.getXMLString());
-
         }
 
         buffer.append("</stock>");

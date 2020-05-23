@@ -7,8 +7,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -21,16 +19,25 @@ import javax.ejb.Singleton;
  */
 @Singleton
 public class StockBean {
-    private List<Stock> stockList;
+    private ArrayList<Stock> stockList;
     
     @PostConstruct
     public void initaliseStockCollection() {
         stockList = new ArrayList();
-        setStock();
+        //setStock();
+        testingMethod();
     }
     
-    public Collection<Stock> getStock() {
+    public ArrayList<Stock> getStock() {
         return stockList;
+    }
+    
+    public void testingMethod() { 
+        for(int i = 0; i < 100; i++) {
+            String s = Integer.toString(i);
+            Stock newStock = new Stock(s, s, s, s, s, s);
+            stockList.add(newStock);
+        }
     }
     
     public void setStock() {
@@ -45,13 +52,13 @@ public class StockBean {
             urlConn = url.openConnection();
             inStream = new InputStreamReader(urlConn.getInputStream());
             buff = new BufferedReader(inStream);
-            
+
             String line = buff.readLine();
             
             while(line != null) {
                 if(line.contains(":[{\"symbol")){
                     String[] str = line.split(Pattern.quote("{") + "\"symbol\"");
-
+                    
                     for(int i = 1; i < str.length-1; i++) {
                         String[] str2 = str[i].split("\",\"");
 
@@ -61,7 +68,7 @@ public class StockBean {
                         String change = "";
                         String percent = "";
                         String volume = "";
-
+                        
                         for(int j = 0; j < str2.length; j++) {
                             if(str2[j].contains("shortName")) {
                                 if(!str2[j].contains("data")) {
@@ -107,9 +114,9 @@ public class StockBean {
                 line = buff.readLine();
             }
         } catch(MalformedURLException ex) {
-            Logger.getLogger(Testing.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PopulateDatabase.class.getName()).log(Level.SEVERE, null, ex);
         } catch(IOException ex) {
-            Logger.getLogger(Testing.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PopulateDatabase.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 }

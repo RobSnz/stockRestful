@@ -29,6 +29,31 @@ public class Stock {
         this.companyName = companyName;
     }
     
+    
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public String getCurrencyType() {
+        return currencyType;
+    }
+
+    public String getMarketPrice() {
+        return marketPrice;
+    }
+
+    public String getMarketChange() {
+        return marketChange;
+    }
+
+    public String getChangePercent() {
+        return changePercent;
+    }
+
+    public String getMarketVolume() {
+        return marketVolume;
+    }
+    
     public String getXMLString() {
         StringBuilder buffer = new StringBuilder();
         buffer.append("<stock>");

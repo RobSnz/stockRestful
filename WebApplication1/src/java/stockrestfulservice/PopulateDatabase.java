@@ -6,6 +6,11 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -15,10 +20,71 @@ import java.util.regex.Pattern;
  *
  * @author Rob
  */
-public class Testing {
-    public static void main(String[] args) {
-        ArrayList<Stock> stockArray = new ArrayList<>();
 
+// Class which is used to add new items into the stock database
+public class PopulateDatabase {
+    private ArrayList<Stock> stockArray;
+    
+    public PopulateDatabase() {
+        stockArray = new ArrayList<>();
+        createStockList();
+        insertIntoDatabase();
+        retrieveFromDatabase();
+    }
+    
+    public static void main(String[] args) {
+        PopulateDatabase p = new PopulateDatabase();
+    }
+
+    public void retrieveFromDatabase() {
+        try {
+            String DB_URL = "jdbc:mysql://raptor2.aut.ac.nz:3306/testUnrestricted";
+            Connection conn = DriverManager.getConnection(DB_URL, "student", "fpn871");
+            Statement st = conn.createStatement();
+            ResultSet rs = st.executeQuery("select * from Stock");
+            
+            while(rs.next()) {
+                System.out.println(rs.getString(1));
+            }
+        } catch(SQLException ex) {
+            Logger.getLogger(StockBean.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public void insertIntoDatabase() {
+        try {
+            String DB_URL = "jdbc:mysql://raptor2.aut.ac.nz:3306/testUnrestricted";
+            Connection conn = DriverManager.getConnection(DB_URL, "student", "fpn871");
+            Statement st = conn.createStatement();
+            ResultSet rs;
+            
+            for(int i = 0; i < stockArray.size(); i++) {
+                int rowCount;
+                String companyName = stockArray.get(i).getCompanyName();
+                
+                if(companyName.contains("'")) {
+                    companyName = companyName.replaceAll("'","");
+                }
+                
+                rs = st.executeQuery("SELECT COUNT(*) FROM Stock WHERE companyname LIKE '" + companyName + "'");
+                rs.next();
+                rowCount = rs.getInt(1);
+                
+                if(rowCount == 0) {
+                    st.executeUpdate("INSERT INTO Stock VALUES('" + companyName 
+                        + "', '" + stockArray.get(i).getCurrencyType()  + "', '" 
+                            + stockArray.get(i).getMarketPrice() + "', '" 
+                                + stockArray.get(i).getMarketChange() + "', '" 
+                                    + stockArray.get(i).getChangePercent() + "', '" 
+                                        + stockArray.get(i).getMarketVolume() + "')");
+                }
+            }
+        } catch(SQLException ex) {
+            Logger.getLogger(StockBean.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public final void createStockList() {
         URL url;
         URLConnection urlConn;
         InputStreamReader inStream;
@@ -91,13 +157,9 @@ public class Testing {
                 line = buff.readLine();
             }
         } catch(MalformedURLException ex) {
-            Logger.getLogger(Testing.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PopulateDatabase.class.getName()).log(Level.SEVERE, null, ex);
         } catch(IOException ex) {
-            Logger.getLogger(Testing.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        System.out.println(stockArray.size());
-        for(int i = 0; i < stockArray.size(); i++) {
-            System.out.println(stockArray.get(i).toString());
+            Logger.getLogger(PopulateDatabase.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 }
