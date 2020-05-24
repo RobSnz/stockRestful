@@ -22,9 +22,15 @@ import java.util.regex.Pattern;
  */
 
 // Class which is used to add new items into the stock database if they dont exist already
-public class PopulateDatabase {
+public class PopulateDatabase implements Runnable {
     private ArrayList<Stock> stockArray;
-    
+    boolean isRunning = true;
+      
+    private URL url;
+    private URLConnection urlConn;
+    private InputStreamReader inStream;
+    private BufferedReader buff;
+                
     public PopulateDatabase() {
         stockArray = new ArrayList<>();
         createStockList();
@@ -34,6 +40,8 @@ public class PopulateDatabase {
     
     public static void main(String[] args) {
         PopulateDatabase p = new PopulateDatabase();
+        Thread t = new Thread(p);
+        t.start();
     }
 
     public void retrieveFromDatabase() {
@@ -86,6 +94,12 @@ public class PopulateDatabase {
                                 + stockArray.get(i).getMarketChange() + "', '" 
                                     + stockArray.get(i).getChangePercent() + "', '" 
                                         + stockArray.get(i).getMarketVolume() + "')");
+                } else {
+                    st.executeUpdate("UPDATE Stock SET marketprice = '" + 
+                        stockArray.get(i).getMarketPrice()+ "', marketchange = '" 
+                            + stockArray.get(i).getMarketChange() + "', changepercent = '" 
+                                + stockArray.get(i).getChangePercent() + "', marketvolume = '" 
+                                    + stockArray.get(i).getMarketVolume() + "' WHERE companyname LIKE '" + companyName + "'");
                 }
             }
         } catch(SQLException ex) {
@@ -96,10 +110,7 @@ public class PopulateDatabase {
     // Method which pulls information from the yahoo stock website, gets the needed information then
     // stores it in an arraylist to be used
     public final void createStockList() {
-        URL url;
-        URLConnection urlConn;
-        InputStreamReader inStream;
-        BufferedReader buff;
+        stockArray.clear();
         
         try {
             url = new URL("https://nz.finance.yahoo.com/screener/predefined/most_actives?count=100&offset=0");
@@ -173,6 +184,19 @@ public class PopulateDatabase {
             Logger.getLogger(PopulateDatabase.class.getName()).log(Level.SEVERE, null, ex);
         } catch(IOException ex) {
             Logger.getLogger(PopulateDatabase.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    @Override
+    public void run() {
+        while(isRunning) {
+            try {
+                Thread.sleep(60000);
+            } catch(InterruptedException ex) {
+                Logger.getLogger(PopulateDatabase.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            createStockList();
+            insertIntoDatabase();
         }
     }
 }
