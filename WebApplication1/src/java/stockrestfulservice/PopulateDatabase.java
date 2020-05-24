@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
  * @author Rob
  */
 
-// Class which is used to add new items into the stock database
+// Class which is used to add new items into the stock database if they dont exist already
 public class PopulateDatabase {
     private ArrayList<Stock> stockArray;
     
@@ -29,7 +29,7 @@ public class PopulateDatabase {
         stockArray = new ArrayList<>();
         createStockList();
         insertIntoDatabase();
-        retrieveFromDatabase();
+        //retrieveFromDatabase();
     }
     
     public static void main(String[] args) {
@@ -45,13 +45,18 @@ public class PopulateDatabase {
             
             while(rs.next()) {
                 System.out.println(rs.getString(1));
+                System.out.println(rs.getString(2));
+                System.out.println(rs.getString(3));
+                System.out.println(rs.getString(4));
+                System.out.println(rs.getString(5));
+                System.out.println(rs.getString(6));
             }
         } catch(SQLException ex) {
             Logger.getLogger(StockBean.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
-    public void insertIntoDatabase() {
+    public final void insertIntoDatabase() {
         try {
             String DB_URL = "jdbc:mysql://raptor2.aut.ac.nz:3306/testUnrestricted";
             Connection conn = DriverManager.getConnection(DB_URL, "student", "fpn871");
@@ -64,6 +69,10 @@ public class PopulateDatabase {
                 
                 if(companyName.contains("'")) {
                     companyName = companyName.replaceAll("'","");
+                }
+                
+                if(companyName.contains("&")) {
+                    companyName = companyName.replaceAll("&","+");
                 }
                 
                 rs = st.executeQuery("SELECT COUNT(*) FROM Stock WHERE companyname LIKE '" + companyName + "'");
@@ -84,6 +93,8 @@ public class PopulateDatabase {
         }
     }
     
+    // Method which pulls information from the yahoo stock website, gets the needed information then
+    // stores it in an arraylist to be used
     public final void createStockList() {
         URL url;
         URLConnection urlConn;
@@ -138,6 +149,7 @@ public class PopulateDatabase {
                                             break;
                                         case 3:
                                             percent = str4[5];
+                                            percent = percent.substring(0, percent.length() - 1);
                                             break;
                                         case 4:
                                             volume = str4[5];
@@ -148,8 +160,9 @@ public class PopulateDatabase {
                                 }
                             }
                         }
+                        
                         if(!name.equals("")) {
-                            Stock newStock = new Stock(name, currency, price, change, percent, volume);
+                            Stock newStock = new Stock(name, currency, Double.parseDouble(price), Double.parseDouble(change), Double.parseDouble(percent), volume);
                             stockArray.add(newStock);
                         }
                     }

@@ -1,15 +1,13 @@
 package stockrestfulservice;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
 import javax.annotation.PostConstruct;
 import javax.ejb.Singleton;
 
@@ -24,99 +22,43 @@ public class StockBean {
     @PostConstruct
     public void initaliseStockCollection() {
         stockList = new ArrayList();
-        //setStock();
-        testingMethod();
+        //testingMethod();
+        addStockFromDatabase();
     }
     
     public ArrayList<Stock> getStock() {
         return stockList;
     }
     
-    public void testingMethod() { 
-        for(int i = 0; i < 100; i++) {
-            String s = Integer.toString(i);
-            Stock newStock = new Stock(s, s, s, s, s, s);
-            stockList.add(newStock);
+    // Method which pulls the data from the database and then saves it in the stockList
+    public void addStockFromDatabase() {
+        try {
+            String DB_URL = "jdbc:mysql://raptor2.aut.ac.nz:3306/testUnrestricted";
+            Connection conn = DriverManager.getConnection(DB_URL, "student", "fpn871");
+            Statement st = conn.createStatement();
+            ResultSet rs = st.executeQuery("select * from Stock");
+            System.out.println(rs.getMetaData().getColumnCount());
+            
+            while(rs.next()) {
+                String name = rs.getString(1);
+                String currency = rs.getString(2);
+                double price = Double.parseDouble(rs.getString(3));
+                double change = Double.parseDouble(rs.getString(4));
+                double percent = Double.parseDouble(rs.getString(5));
+                String volume = rs.getString(6);
+                stockList.add(new Stock(name, currency, price, change, percent, volume));
+            }
+        } catch(SQLException ex) {
+            Logger.getLogger(StockBean.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
-    public void setStock() {
-        URL url;
-        URLConnection urlConn;
-        InputStreamReader inStream;
-        BufferedReader buff;
-        
-        
-        try {
-            url = new URL("https://nz.finance.yahoo.com/screener/predefined/most_actives?count=100&offset=0");
-            urlConn = url.openConnection();
-            inStream = new InputStreamReader(urlConn.getInputStream());
-            buff = new BufferedReader(inStream);
-
-            String line = buff.readLine();
-            
-            while(line != null) {
-                if(line.contains(":[{\"symbol")){
-                    String[] str = line.split(Pattern.quote("{") + "\"symbol\"");
-                    
-                    for(int i = 1; i < str.length-1; i++) {
-                        String[] str2 = str[i].split("\",\"");
-
-                        String name = "";
-                        String currency = "";
-                        String price = "";
-                        String change = "";
-                        String percent = "";
-                        String volume = "";
-                        
-                        for(int j = 0; j < str2.length; j++) {
-                            if(str2[j].contains("shortName")) {
-                                if(!str2[j].contains("data")) {
-                                    String[] str3 = str2[j].split("\"");
-                                    name = str3[2];
-                                }
-
-                            } else if(str2[j].contains("currency")) {
-                                String[] str3 = str2[j].split("\"");
-                                currency = str3[2];
-
-                            } else if(str2[j].contains("regularMarketPrice")) {
-                                String[] str3 = str2[j].split(Pattern.quote("{"));
-
-                                for(int k = 1; k < str3.length; k++) {
-                                    String[] str4 = str3[k].split("\"");
-
-                                    switch(k) {
-                                        case 1:
-                                            price = str4[5];
-                                            break;
-                                        case 2:
-                                            change = str4[5];
-                                            break;
-                                        case 3:
-                                            percent = str4[5];
-                                            break;
-                                        case 4:
-                                            volume = str4[5];
-                                            break;
-                                        default:
-                                            break;
-                                    }
-                                }
-                            }
-                        }
-                        if(!name.equals("")) {
-                            Stock newStock = new Stock(name, currency, price, change, percent, volume);
-                            stockList.add(newStock);
-                        }
-                    }
-                }
-                line = buff.readLine();
-            }
-        } catch(MalformedURLException ex) {
-            Logger.getLogger(PopulateDatabase.class.getName()).log(Level.SEVERE, null, ex);
-        } catch(IOException ex) {
-            Logger.getLogger(PopulateDatabase.class.getName()).log(Level.SEVERE, null, ex);
+    // Method to test adding into stockList without a database for debugging purposes
+    public void testingMethod() { 
+        for(int i = 0; i < 100; i++) {
+            String s = Integer.toString(i);
+            Stock newStock = new Stock(s, s, i, i, i, s);
+            stockList.add(newStock);
         }
     }
 }

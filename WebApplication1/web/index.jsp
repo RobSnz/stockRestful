@@ -14,7 +14,9 @@
     <body>
         <h1>Stock Restful Web Service</h1>
         
-        <a href="<%= response.encodeURL(request.getContextPath())%>/stockservice/stock">Get all stock</a>
-    
+        <a href="<%= response.encodeURL(request.getContextPath())%>/stockservice/stock">Get all stock</a></br>
+        <a href="<%= response.encodeURL(request.getContextPath())%>/stockservice/stock/positive">Get positive stock</a></br>
+        <a href="<%= response.encodeURL(request.getContextPath())%>/stockservice/stock/negative">Get negative stock</a></br>
+        
     </body>
 </html>

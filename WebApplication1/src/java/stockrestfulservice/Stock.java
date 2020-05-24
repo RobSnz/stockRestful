@@ -7,16 +7,15 @@ package stockrestfulservice;
 public class Stock {
     private String companyName;
     private String currencyType;
-    private String marketPrice;
-    private String marketChange;
-    private String changePercent;
     private String marketVolume;
-    
-    public Stock() {
-        
+    private double marketPrice;
+    private double marketChange;
+    private double changePercent;
+
+    public Stock() {   
     }
     
-    public Stock(String companyName, String currencyType, String marketPrice, String marketChange, String changePercent, String marketVolume) {
+    public Stock(String companyName, String currencyType, double marketPrice, double marketChange, double changePercent, String marketVolume) {
         this.companyName = companyName;
         this.currencyType = currencyType;
         this.marketPrice = marketPrice;
@@ -25,10 +24,20 @@ public class Stock {
         this.marketVolume = marketVolume;
     }
     
-    public void setCompanyName(String companyName) {
-        this.companyName = companyName;
+    public String getXMLString() {
+        StringBuilder buffer = new StringBuilder();
+        
+        buffer.append("<stock>");
+        buffer.append("<companyName>").append(companyName).append("</companyName>");
+        buffer.append("<currencyType>").append(currencyType).append("</currencyType>");
+        buffer.append("<marketPrice>").append(marketPrice).append("</marketPrice>");
+        buffer.append("<marketChange>").append(marketChange).append("</marketChange>");
+        buffer.append("<changePercent>").append(changePercent).append("%").append("</changePercent>");
+        buffer.append("<marketVolume>").append(marketVolume).append("</marketVolume>");
+        buffer.append("</stock>");
+        
+        return buffer.toString();
     }
-    
     
     public String getCompanyName() {
         return companyName;
@@ -38,33 +47,20 @@ public class Stock {
         return currencyType;
     }
 
-    public String getMarketPrice() {
-        return marketPrice;
-    }
-
-    public String getMarketChange() {
-        return marketChange;
-    }
-
-    public String getChangePercent() {
-        return changePercent;
-    }
-
     public String getMarketVolume() {
         return marketVolume;
     }
-    
-    public String getXMLString() {
-        StringBuilder buffer = new StringBuilder();
-        buffer.append("<stock>");
-        buffer.append("<companyName>").append(companyName).append("</companyName>");
-        buffer.append("<currencyType>").append(currencyType).append("</currencyType>");
-        buffer.append("<marketPrice>").append(marketPrice).append("</marketPrice>");
-        buffer.append("<marketChange>").append(marketChange).append("</marketChange>");
-        buffer.append("<changePercent>").append(changePercent).append("</changePercent>");
-        buffer.append("<marketVolume>").append(marketVolume).append("</marketVolume>");
-        buffer.append("</stock>");
-        return buffer.toString();
+
+    public double getMarketPrice() {
+        return marketPrice;
+    }
+
+    public double getMarketChange() {
+        return marketChange;
+    }
+
+    public double getChangePercent() {
+        return changePercent;
     }
     
     @Override
