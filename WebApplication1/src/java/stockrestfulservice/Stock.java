@@ -8,6 +8,7 @@ public class Stock {
     private String companyName;
     private String currencyType;
     private String marketVolume;
+    private String companySymbol;
     private double marketPrice;
     private double marketChange;
     private double changePercent;
@@ -15,9 +16,10 @@ public class Stock {
     public Stock() {   
     }
     
-    public Stock(String companyName, String currencyType, double marketPrice, double marketChange, double changePercent, String marketVolume) {
+    public Stock(String companyName, String currencyType, String companySymbol, double marketPrice, double marketChange, double changePercent, String marketVolume) {
         this.companyName = companyName;
         this.currencyType = currencyType;
+        this.companySymbol = companySymbol;
         this.marketPrice = marketPrice;
         this.marketChange = marketChange;
         this.changePercent = changePercent;
@@ -30,6 +32,7 @@ public class Stock {
         buffer.append("<stock>");
         buffer.append("<companyName>").append(companyName).append("</companyName>");
         buffer.append("<currencyType>").append(currencyType).append("</currencyType>");
+        buffer.append("<companySymbol>").append(companySymbol).append("</companySymbol>");
         buffer.append("<marketPrice>").append(marketPrice).append("</marketPrice>");
         buffer.append("<marketChange>").append(marketChange).append("</marketChange>");
         buffer.append("<changePercent>").append(changePercent).append("%").append("</changePercent>");
@@ -50,7 +53,11 @@ public class Stock {
     public String getMarketVolume() {
         return marketVolume;
     }
-
+    
+    public String getCompanySymbol() {
+        return companySymbol;
+    }
+    
     public double getMarketPrice() {
         return marketPrice;
     }
@@ -61,10 +68,5 @@ public class Stock {
 
     public double getChangePercent() {
         return changePercent;
-    }
-    
-    @Override
-    public String toString() {
-        return "Name: " + companyName + ", Currency: " + currencyType + ", Market Price: " + marketPrice + ", Market Change: " + marketChange + ", Change %: " + changePercent + ", Volume: " + marketVolume;
     }
 }

@@ -74,6 +74,7 @@ public class PopulateDatabase implements Runnable {
             for(int i = 0; i < stockArray.size(); i++) {
                 int rowCount;
                 String companyName = stockArray.get(i).getCompanyName();
+                String symbolName = stockArray.get(i).getCompanySymbol();
                 
                 if(companyName.contains("'")) {
                     companyName = companyName.replaceAll("'","");
@@ -83,17 +84,26 @@ public class PopulateDatabase implements Runnable {
                     companyName = companyName.replaceAll("&","+");
                 }
                 
+                if(symbolName.contains("'")) {
+                    symbolName = symbolName.replaceAll("'","");
+                }
+                
+                if(symbolName.contains("&")) {
+                    symbolName = symbolName.replaceAll("&","+");
+                }
+                
                 rs = st.executeQuery("SELECT COUNT(*) FROM Stock WHERE companyname LIKE '" + companyName + "'");
                 rs.next();
                 rowCount = rs.getInt(1);
                 
                 if(rowCount == 0) {
-                    st.executeUpdate("INSERT INTO Stock VALUES('" + companyName 
-                        + "', '" + stockArray.get(i).getCurrencyType()  + "', '" 
+                    st.executeUpdate("INSERT INTO Stock VALUES('" + companyName + "', '" 
+                        + stockArray.get(i).getCurrencyType()  + "', '" 
                             + stockArray.get(i).getMarketPrice() + "', '" 
                                 + stockArray.get(i).getMarketChange() + "', '" 
                                     + stockArray.get(i).getChangePercent() + "', '" 
-                                        + stockArray.get(i).getMarketVolume() + "')");
+                                        + stockArray.get(i).getMarketVolume() + "', '"
+                                            + symbolName + "')");
                 } else {
                     st.executeUpdate("UPDATE Stock SET marketprice = '" + 
                         stockArray.get(i).getMarketPrice()+ "', marketchange = '" 
@@ -123,12 +133,13 @@ public class PopulateDatabase implements Runnable {
             while(line != null) {
                 if(line.contains(":[{\"symbol")){
                     String[] str = line.split(Pattern.quote("{") + "\"symbol\"");
-
+                    
                     for(int i = 1; i < str.length-1; i++) {
                         String[] str2 = str[i].split("\",\"");
 
                         String name = "";
                         String currency = "";
+                        String symbol = str2[0].replace(":", "").replace("\"", "");
                         String price = "";
                         String change = "";
                         String percent = "";
@@ -173,7 +184,7 @@ public class PopulateDatabase implements Runnable {
                         }
                         
                         if(!name.equals("")) {
-                            Stock newStock = new Stock(name, currency, Double.parseDouble(price), Double.parseDouble(change), Double.parseDouble(percent), volume);
+                            Stock newStock = new Stock(name, currency, symbol, Double.parseDouble(price), Double.parseDouble(change), Double.parseDouble(percent), volume);
                             stockArray.add(newStock);
                         }
                     }

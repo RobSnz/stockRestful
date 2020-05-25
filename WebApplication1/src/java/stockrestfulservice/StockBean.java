@@ -46,7 +46,9 @@ public class StockBean {
                 double change = Double.parseDouble(rs.getString(4));
                 double percent = Double.parseDouble(rs.getString(5));
                 String volume = rs.getString(6);
-                stockList.add(new Stock(name, currency, price, change, percent, volume));
+                String symbol = rs.getString(7);
+                
+                stockList.add(new Stock(name, currency, symbol, price, change, percent, volume));
             }
         } catch(SQLException ex) {
             Logger.getLogger(StockBean.class.getName()).log(Level.SEVERE, null, ex);
@@ -57,7 +59,7 @@ public class StockBean {
     public void testingMethod() { 
         for(int i = 0; i < 100; i++) {
             String s = Integer.toString(i);
-            Stock newStock = new Stock(s, s, i, i, i, s);
+            Stock newStock = new Stock(s, s, s, i, i, i, s);
             stockList.add(newStock);
         }
     }
